@@ -1,7 +1,7 @@
 def slack = new org.daisho.Slack()
 
-def packageName = "device-manager"
-def appsList = "device-manager"
+def packageName = "device-controller"
+def appsList = "device-controller"
 def packagePath = "src/github.com/nalej/${packageName}"
 
 pipeline {
