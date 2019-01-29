@@ -1,0 +1,36 @@
+###
+# Device Controller
+###
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    cluster: application
+    component: device-controller
+  name: device-controller
+  namespace: __NPH_NAMESPACE
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      cluster: application
+      component: device-controller
+  template:
+    metadata:
+      labels:
+        cluster: application
+        component: device-controller
+    spec:
+      containers:
+      - name: device-controller
+        image: nalejregistry.azurecr.io/nalej/device-controlleri:__NPH_VERSION
+        imagePullPolicy: Always
+        args:
+        - "run"
+        - "--debug"
+        securityContext:
+          runAsUser: 2000
+      imagePullSecrets:
+      - name: nalej-registry

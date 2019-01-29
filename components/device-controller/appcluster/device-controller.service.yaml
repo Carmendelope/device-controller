@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: device-controller
+  labels:
+    cluster: application
+    component: device-controller
+  namespace: nalej
+spec:
+  selector:
+    cluster: application
+    component: device-controller
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    name: grpc
+    port: 6020
+    targetPort: 6020
