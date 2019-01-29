@@ -15,8 +15,8 @@ var runCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		SetupLogging()
 		log.Info().Msg("Launching API!")
-		//server := server.NewService(config)
-		//server.Run()
+		server := server.NewService(config)
+		server.Run()
 	},
 }
 
