@@ -16,26 +16,6 @@ const (
 	invalidListMeasure= "LatencyList cannot be empty"
 )
 
-func validLatency(latency * grpc_device_controller_go.Latency) derrors.Error {
-	if latency.Measure <= 0 {
-		return derrors.NewInvalidArgumentError(invalidMeasure)
-	}
-	return nil
-}
-
-func validLatencyList(list []*grpc_device_controller_go.Latency) derrors.Error {
-
-	if list == nil || len(list.Latencies) == 0 {
-		return derrors.NewInvalidArgumentError(invalidListMeasure)
-	}
-	for _, latency := range list.Latencies {
-		err := validLatency(latency)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
 func ValidRegisterLatencyRequest(latency * grpc_device_controller_go.RegisterLatencyRequest) derrors.Error{
 	if latency.OrganizationId == "" {
 		return derrors.NewInvalidArgumentError(emptyOrganizationId)
@@ -46,9 +26,27 @@ func ValidRegisterLatencyRequest(latency * grpc_device_controller_go.RegisterLat
 	if latency.DeviceId == "" {
 		return derrors.NewInvalidArgumentError(emptyDeviceId)
 	}
-	return validLatency(latency.Latency)
+	if latency.Latency <= 0 {
+		return derrors.NewInvalidArgumentError(invalidMeasure)
+	}
+	return nil
 }
 
 func ValidSelectClusterRequest(request * grpc_device_controller_go.SelectClusterRequest) derrors.Error {
-	return validLatencyList(request.Latencies)
+	if request.OrganizationId == "" {
+		return derrors.NewInvalidArgumentError(emptyOrganizationId)
+	}
+	if request.DeviceGroupId == "" {
+		return derrors.NewInvalidArgumentError(emptyDeviceGroupId)
+	}
+	if request.DeviceId == "" {
+		return derrors.NewInvalidArgumentError(emptyDeviceId)
+	}
+	for _, latency := range request.Latencies {
+		if latency <= 0 {
+			return derrors.NewInvalidArgumentError(invalidMeasure)
+		}
+	}
+	return nil
+
 }

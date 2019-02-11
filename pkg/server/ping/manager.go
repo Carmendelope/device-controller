@@ -6,6 +6,7 @@ package ping
 
 import (
 	"github.com/nalej/device-controller/pkg/login_helper"
+	"github.com/nalej/grpc-cluster-api-go"
 	"github.com/nalej/grpc-common-go"
 	"github.com/nalej/grpc-device-controller-go"
 	"math"
@@ -15,12 +16,15 @@ type Manager struct {
 	Threshold int
 	// LoginHelper Helper
 	ClusterAPILoginHelper *login_helper.LoginHelper
+	// clusterAPIClient
+	ClusterAPIClient grpc_cluster_api_go.DeviceManagerClient
 }
 
-func NewManager(threshold int, helper *login_helper.LoginHelper) Manager {
+func NewManager(threshold int, helper *login_helper.LoginHelper, client grpc_cluster_api_go.DeviceManagerClient ) Manager {
 	return Manager{
 		Threshold: threshold,
 		ClusterAPILoginHelper: helper,
+		ClusterAPIClient: client,
 	}
 }
 
@@ -34,7 +38,7 @@ func (m * Manager) SendRegisterPingToClusterAPI(ping * grpc_device_controller_go
 
 func (m * Manager) RegisterPing (ping * grpc_device_controller_go.RegisterLatencyRequest) (* grpc_device_controller_go.RegisterLatencyResult, error) {
 	result := grpc_device_controller_go.RegisterResult_OK
-	if int(ping.Latency.Measure) > m.Threshold {
+	if int(ping.Latency) > m.Threshold {
 		result = grpc_device_controller_go.RegisterResult_LATENCY_CHECK_REQUIRED
 	}
 	return &grpc_device_controller_go.RegisterLatencyResult{
@@ -48,8 +52,8 @@ func (m * Manager) SelectCluster(request * grpc_device_controller_go.SelectClust
 	min := math.MaxInt32
 
 	for i,latency := range request.Latencies {
-		if int(latency.Measure) < min {
-			min = int(latency.Measure)
+		if int(latency) < min {
+			min = int(latency)
 			pos = i
 		}
 	}

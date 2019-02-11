@@ -16,3 +16,7 @@ spec:
     name: grpc
     port: 6020
     targetPort: 6020
+  - protocol: TCP
+    name: http
+    port: 6021
+    targetPort: 6021

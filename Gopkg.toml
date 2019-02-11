@@ -32,8 +32,12 @@
 
 [[constraint]]
     name="github.com/nalej/grpc-device-controller-go"
-    version="v0.0.4"
+    version="v0.0.5"
 
 [[constraint]]
     name="github.com/nalej/grpc-login-api-go"
     version="v0.0.1"
+
+[[constraint]]
+    name="github.com/nalej/grpc-cluster-api-go"
+    version="v0.0.17"
