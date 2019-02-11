@@ -30,6 +30,7 @@ spec:
         args:
         - "run"
         - "--debug"
+        - "--threshold=30000"
         securityContext:
           runAsUser: 2000
       imagePullSecrets:

@@ -30,3 +30,10 @@
     name="github.com/nalej/grpc-common-go"
     version="v0.0.17"
 
+[[constraint]]
+    name="github.com/nalej/grpc-device-controller-go"
+    version="v0.0.4"
+
+[[constraint]]
+    name="github.com/nalej/grpc-login-api-go"
+    version="v0.0.1"

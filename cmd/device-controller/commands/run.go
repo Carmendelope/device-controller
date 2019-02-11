@@ -22,6 +22,6 @@ var runCmd = &cobra.Command{
 
 func init() {
 	runCmd.Flags().IntVar(&config.Port, "port", 6020, "Port to launch the Device gRPC API")
-
+	runCmd.Flags().IntVar(&config.Threshold, "threshold", 30000, "Threshold for latency")
 	rootCmd.AddCommand(runCmd)
 }
