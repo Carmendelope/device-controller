@@ -9,6 +9,9 @@ import (
 	"github.com/nalej/grpc-cluster-api-go"
 	"github.com/nalej/grpc-common-go"
 	"github.com/nalej/grpc-device-controller-go"
+	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc/codes"
+	grpc_status "google.golang.org/grpc/status"
 	"math"
 )
 
@@ -32,7 +35,31 @@ func (m * Manager) Ping () (*grpc_common_go.Success, error) {
 	return &grpc_common_go.Success{}, nil
 }
 
-func (m * Manager) SendRegisterPingToClusterAPI(ping * grpc_device_controller_go.RegisterLatencyRequest) error {
+func (m * Manager) sendRegisterPingToClusterAPI(ping * grpc_device_controller_go.RegisterLatencyRequest) error {
+
+	ctx, cancel := m.ClusterAPILoginHelper.GetContext()
+	defer cancel()
+
+	_, err := m.ClusterAPIClient.RegisterLatency(ctx, ping)
+	if err != nil {
+		st := grpc_status.Convert(err).Code()
+		if st == codes.Unauthenticated {
+			errLogin := m.ClusterAPILoginHelper.RerunAuthentication()
+			if errLogin != nil {
+				log.Error().Err(errLogin).Msg("error during reauthentication")
+			}
+			ctx2, cancel2 := m.ClusterAPILoginHelper.GetContext()
+			defer cancel2()
+			_, err = m.ClusterAPIClient.RegisterLatency(ctx2, ping)
+		} else {
+			log.Error().Err(err).Msgf("error recording latencies")
+		}
+	}
+
+	if err != nil {
+		log.Error().Err(err).Msg("error recording latencies")
+	}
+
 	return nil
 }
 
@@ -41,6 +68,9 @@ func (m * Manager) RegisterPing (ping * grpc_device_controller_go.RegisterLatenc
 	if int(ping.Latency) > m.Threshold {
 		result = grpc_device_controller_go.RegisterResult_LATENCY_CHECK_REQUIRED
 	}
+
+	go m.sendRegisterPingToClusterAPI(ping)
+
 	return &grpc_device_controller_go.RegisterLatencyResult{
 		Result: result,
 	}, nil

@@ -8,6 +8,7 @@ import (
 	"github.com/nalej/derrors"
 	"github.com/rs/zerolog/log"
 	"github.com/nalej/device-controller/version"
+	"strings"
 )
 
 type Config struct {
@@ -23,7 +24,6 @@ type Config struct {
 	LoginHostname string
 	// LoginPort with the port where the login API is listening
 	LoginPort uint32
-	// UseTLSForLogin defines if TLS should be used to connect to the Login API.
 	UseTLSForLogin bool
 	// Email to log into the management cluster.
 	Email string
@@ -49,4 +49,9 @@ func (conf *Config) Print() {
 	log.Info().Int("port", conf.Port).Msg("gRPC port")
 	log.Info().Int("port", conf.HTTPPort).Msg("HTTP port")
 	log.Info().Int("Threshold", conf.Threshold).Msg("Threshold in milliseconds")
+	log.Info().Str("URL", conf.ClusterAPIHostname).Uint32("port", conf.ClusterAPIPort).Msg("Cluster API on management cluster")
+	log.Info().Str("URL", conf.LoginHostname).Uint32("port", conf.LoginPort).Bool("UseTLSForLogin", conf.UseTLSForLogin).Msg("Login API on management cluster")
+	log.Info().Str("Email", conf.Email).Str("password", strings.Repeat("*", len(conf.Password))).Msg("Application cluster credentials")
+
+
 }

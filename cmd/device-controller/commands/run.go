@@ -22,6 +22,14 @@ var runCmd = &cobra.Command{
 
 func init() {
 	runCmd.Flags().IntVar(&config.Port, "port", 6020, "Port to launch the Device gRPC API")
-	runCmd.Flags().IntVar(&config.Threshold, "threshold", 30000, "Threshold for latency")
+	runCmd.Flags().IntVar(&config.HTTPPort, "httpPort", 6021, "Port to launch the Device HTTP API")
+	runCmd.Flags().IntVar(&config.Threshold, "threshold", 100, "Threshold for latency")
+	runCmd.Flags().StringVar(&config.ClusterAPIHostname, "clusterAPIHostname", "","Hostname of the cluster API on the management cluster" )
+	runCmd.Flags().Uint32Var(&config.ClusterAPIPort, "clusterAPIPort", 8000, "Port where the cluster API is listening")
+	runCmd.Flags().StringVar(&config.LoginHostname, "loginHostname", "", "Hostname of the login service")
+	runCmd.Flags().Uint32Var(&config.LoginPort, "loginPort", 31683, "port where the login service is listening")
+	runCmd.Flags().BoolVar(&config.UseTLSForLogin, "useTLSForLogin", true, "Use TLS to connect to the Login API")
+	runCmd.Flags().StringVar(&config.Email, "email", "admin@nalej.com", "email address")
+	runCmd.Flags().StringVar(&config.Password, "password", "Passw0rd666", "password")
 	rootCmd.AddCommand(runCmd)
 }

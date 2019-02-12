@@ -85,19 +85,20 @@ func (s * Service) LaunchGRPC() error {
 
 	cErr := clusterAPILoginHelper.Login()
 	if cErr != nil {
-		log.Fatal().Errs("there was an error requesting cluster-api login", []error{cErr})
+		log.Fatal().Str("err", cErr.DebugReport()).Msg("there was an error requesting cluster-api login")
 	}
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", s.Configuration.Port))
 	if err != nil {
-		log.Fatal().Errs("failed to listen: %v", []error{err})
+		log.Fatal().Int("port", s.Configuration.Port).Str("err", err.Error()).Msg("failed to listen")
 	}
 
 	// Build connection with cluster-api
 	log.Debug().Str("hostname", s.Configuration.ClusterAPIHostname).Msg("connecting with cluster api")
 	clusterAPIConn, errCond := s.getClusterAPIConnection(s.Configuration.ClusterAPIHostname, int(s.Configuration.ClusterAPIPort))
 	if errCond != nil {
-		log.Fatal().Errs("impossible to connect with cluster api", []error{cErr})
+		//log.Fatal().Errs("impossible to connect with cluster api", []error{cErr})
+		log.Fatal().Str("err", errCond.DebugReport()).Msg("impossible to connect with cluster api")
 	}
 	cClient := grpc_cluster_api_go.NewDeviceManagerClient(clusterAPIConn)
 
