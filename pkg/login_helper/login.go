@@ -60,7 +60,6 @@ func (l *LoginHelper) Login() derrors.Error {
 	if lErr != nil {
 		return conversions.ToDerror(lErr)
 	}
-	// log.Debug().Str("token", response.Token).Msg("LoginHelper success")
 	l.Credentials = NewCredentials(DefaultPath, response.Token, response.RefreshToken)
 	sErr := l.Credentials.Store()
 	if sErr != nil {

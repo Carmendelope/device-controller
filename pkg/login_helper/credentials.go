@@ -45,7 +45,6 @@ func (c *Credentials) Store() derrors.Error {
 
 func (c *Credentials) GetContext(timeout ...time.Duration) (context.Context, context.CancelFunc) {
 	md := metadata.New(map[string]string{AuthHeader: c.Token})
-	//log.Debug().Interface("md", md).Msg("metadata has been created")
 	if len(timeout) == 0 {
 		baseContext, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 		return metadata.NewOutgoingContext(baseContext, md), cancel

@@ -29,7 +29,7 @@ func init() {
 	runCmd.Flags().StringVar(&config.LoginHostname, "loginHostname", "", "Hostname of the login service")
 	runCmd.Flags().Uint32Var(&config.LoginPort, "loginPort", 31683, "port where the login service is listening")
 	runCmd.Flags().BoolVar(&config.UseTLSForLogin, "useTLSForLogin", true, "Use TLS to connect to the Login API")
-	runCmd.Flags().StringVar(&config.Email, "email", "admin@nalej.com", "email address")
-	runCmd.Flags().StringVar(&config.Password, "password", "Passw0rd666", "password")
+	runCmd.Flags().StringVar(&config.Email, "email", "", "email address")
+	runCmd.Flags().StringVar(&config.Password, "password", "", "password")
 	rootCmd.AddCommand(runCmd)
 }
