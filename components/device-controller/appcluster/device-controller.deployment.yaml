@@ -30,7 +30,44 @@ spec:
         args:
         - "run"
         - "--debug"
+        - "--threshold=100"
+        - "--clusterAPIHostname=$(CLUSTER_API_HOST)"
+        - "--clusterAPIPort=443"
+        - "--loginHostname=$(LOGIN_API_HOST)"
+        - "--loginPort=443"
+        - "--useTLSForLogin=true"
+        - "--email=$(EMAIL)"
+        - "--password=$(PASSWORD)"
         securityContext:
           runAsUser: 2000
+        env:
+        - name: CLUSTER_API_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: cluster-config
+              key: cluster_api_hostname
+        - name: LOGIN_API_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: cluster-config
+              key: login_api_hostname
+        - name: CLUSTER_PUBLIC_HOSTNAME
+          valueFrom:
+            configMapKeyRef:
+              name: cluster-config
+              key: cluster_public_hostname
+        - name: EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: cluster-user-credentials
+              key: email
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cluster-user-credentials
+              key: password
+        ports:
+        - name: api-port
+          containerPort: 5200
       imagePullSecrets:
       - name: nalej-registry
