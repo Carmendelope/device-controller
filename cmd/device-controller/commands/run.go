@@ -31,5 +31,7 @@ func init() {
 	runCmd.Flags().BoolVar(&config.UseTLSForLogin, "useTLSForLogin", true, "Use TLS to connect to the Login API")
 	runCmd.Flags().StringVar(&config.Email, "email", "", "email address")
 	runCmd.Flags().StringVar(&config.Password, "password", "", "password")
+	runCmd.PersistentFlags().StringVar(&config.AuthHeader, "authHeader", "", "Authorization Header")
+	runCmd.PersistentFlags().StringVar(&config.AuthConfigPath, "authConfigPath", "", "Authorization config path")
 	rootCmd.AddCommand(runCmd)
 }
