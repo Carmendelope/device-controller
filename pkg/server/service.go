@@ -48,13 +48,13 @@ type Clients struct {
 
 func (s *Service) GetClients() (*Clients, derrors.Error) {
 
-	dmConn, err := grpc.Dial(fmt.Sprintf("%s:%d", s.Configuration.ClusterAPIHostname, s.Configuration.ClusterAPIPort), grpc.WithInsecure())
+	dmConn, err := s.getSecureAPIConnection(s.Configuration.ClusterAPIHostname, int(s.Configuration.ClusterAPIPort))
 	if err != nil {
 		return nil, derrors.AsError(err, "cannot create connection with the Cluster API manager")
 	}
 	deviceClient := grpc_cluster_api_go.NewDeviceManagerClient(dmConn)
 
-	loginConn, err := grpc.Dial(fmt.Sprintf("%s:%d", s.Configuration.LoginHostname, s.Configuration.LoginPort), grpc.WithInsecure())
+	loginConn, err := s.getSecureAPIConnection(s.Configuration.LoginHostname, int(s.Configuration.LoginPort))
 	if err != nil {
 		return nil, derrors.AsError(err, "cannot create connection with the Login API manager")
 	}
@@ -63,7 +63,7 @@ func (s *Service) GetClients() (*Clients, derrors.Error) {
 	return &Clients{DeviceManagerClient:deviceClient, LoginClient:loginClient}, nil
 }
 
-func (s *Service) getClusterAPIConnection(hostname string, port int) (*grpc.ClientConn, derrors.Error) {
+func (s *Service) getSecureAPIConnection(hostname string, port int) (*grpc.ClientConn, derrors.Error) {
 	// Build connection with cluster API
 	tlsConfig := &tls.Config{
 		ServerName:   hostname,
@@ -124,17 +124,8 @@ func (s * Service) LaunchGRPC(authConfig *interceptor.AuthorizationConfig) error
 		log.Fatal().Int("port", s.Configuration.Port).Str("err", err.Error()).Msg("failed to listen")
 	}
 
-	// Build connection with cluster-api
-	log.Debug().Str("hostname", s.Configuration.ClusterAPIHostname).Msg("connecting with cluster api")
-	clusterAPIConn, errCond := s.getClusterAPIConnection(s.Configuration.ClusterAPIHostname, int(s.Configuration.ClusterAPIPort))
-	if errCond != nil {
-		//log.Fatal().Errs("impossible to connect with cluster api", []error{cErr})
-		log.Fatal().Str("err", errCond.DebugReport()).Msg("impossible to connect with cluster api")
-	}
-	cClient := grpc_cluster_api_go.NewDeviceManagerClient(clusterAPIConn)
-
 	// Create handlers and managers
-	pingManager := ping.NewManager(s.Configuration.Threshold, clusterAPILoginHelper, cClient)
+	pingManager := ping.NewManager(s.Configuration.Threshold, clusterAPILoginHelper, clients.DeviceManagerClient)
 	pingHandler := ping.NewHandler(pingManager)
 
 	// Interceptor

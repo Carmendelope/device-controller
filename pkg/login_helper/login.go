@@ -73,8 +73,6 @@ func (l *LoginHelper) GetContext() (context.Context, context.CancelFunc) {
 	return l.Credentials.GetContext()
 }
 
-
-
 type GenericGRPCCall func(context.Context, interface{}, ...grpc.CallOption) (interface{}, error)
 
 // Generic function to wrap GRPC calls inside a logged-in context.

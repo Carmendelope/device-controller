@@ -38,7 +38,7 @@ spec:
         - "--useTLSForLogin=true"
         - "--email=$(EMAIL)"
         - "--password=$(PASSWORD)"
-        - "--authConfigPath=/nalej/config/authx-config.json"
+        - "--authConfigPath=/nalej/config/authx-device-controller-authx-config.json"
         - "--authHeader=authorization"
         securityContext:
           runAsUser: 2000
@@ -72,7 +72,7 @@ spec:
         - name: api-port
           containerPort: 5200
         volumeMounts:
-        - name: authx-config
+        - name: config
           mountPath: "/nalej/config"
           readOnly: true
       volumes:

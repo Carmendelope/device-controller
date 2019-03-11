@@ -2,13 +2,13 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   labels:
-    cluster: aapplication
+    cluster: application
     component: device-controller
   name: device-controller-authx-config
   namespace: __NPH_NAMESPACE
 data:
   # Primitives: ORG, APPS, RESOURCES, PROFILE
-  authx-config.json: |
+  authx-device-controller-authx-config.json: |
     {"allows_all":false,
      "permissions": {
        "/device_controller.Connection/Ping":{"must":["DEVICE"]},
