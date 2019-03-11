@@ -41,3 +41,7 @@
 [[constraint]]
     name="github.com/nalej/grpc-cluster-api-go"
     version="v0.0.17"
+
+[[constraint]]
+    name="github.com/nalej/authx"
+    branch="master"

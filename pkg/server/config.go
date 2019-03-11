@@ -5,6 +5,7 @@
 package server
 
 import (
+	"github.com/nalej/authx/pkg/interceptor"
 	"github.com/nalej/derrors"
 	"github.com/rs/zerolog/log"
 	"github.com/nalej/device-controller/version"
@@ -31,6 +32,15 @@ type Config struct {
 	Password string
 	// Threshold in milliseconds by which it will be considered if a latency is acceptable or not
 	Threshold int
+	// AuthHeader contains the name of the target header.
+	AuthHeader string
+	// AuthConfigPath contains the path of the file with the authentication configuration.
+	AuthConfigPath string
+}
+
+// LoadAuthConfig loads the security configuration.
+func (conf *Config) LoadAuthConfig() (*interceptor.AuthorizationConfig, derrors.Error) {
+	return interceptor.LoadAuthorizationConfig(conf.AuthConfigPath)
 }
 
 func (conf *Config) Validate() derrors.Error {
@@ -40,6 +50,9 @@ func (conf *Config) Validate() derrors.Error {
 	}
 	if conf.Threshold <= 0 {
 		return derrors.NewInvalidArgumentError("Threshold must be valid")
+	}
+	if conf.AuthConfigPath == "" {
+		return derrors.NewInvalidArgumentError("authConfigPath must be set")
 	}
 	return nil
 }
@@ -52,6 +65,6 @@ func (conf *Config) Print() {
 	log.Info().Str("URL", conf.ClusterAPIHostname).Uint32("port", conf.ClusterAPIPort).Msg("Cluster API on management cluster")
 	log.Info().Str("URL", conf.LoginHostname).Uint32("port", conf.LoginPort).Bool("UseTLSForLogin", conf.UseTLSForLogin).Msg("Login API on management cluster")
 	log.Info().Str("Email", conf.Email).Str("password", strings.Repeat("*", len(conf.Password))).Msg("Application cluster credentials")
-
-
+	log.Info().Str("header", conf.AuthHeader).Msg("Authorization")
+	log.Info().Str("path", conf.AuthConfigPath).Msg("Permissions file")
 }

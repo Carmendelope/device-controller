@@ -9,11 +9,14 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/nalej/authx/pkg/interceptor"
+	"github.com/nalej/authx/pkg/interceptor/devinterceptor"
 	"github.com/nalej/derrors"
 	"github.com/nalej/device-controller/pkg/login_helper"
 	"github.com/nalej/device-controller/pkg/server/ping"
 	"github.com/nalej/grpc-cluster-api-go"
 	"github.com/nalej/grpc-device-controller-go"
+	"github.com/nalej/grpc-login-api-go"
 	"github.com/nalej/grpc-utils/pkg/tools"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
@@ -39,14 +42,28 @@ func NewService(conf Config) *Service {
 }
 
 type Clients struct {
+	DeviceManagerClient grpc_cluster_api_go.DeviceManagerClient
+	LoginClient  grpc_login_api_go.LoginClient
 }
 
 func (s *Service) GetClients() (*Clients, derrors.Error) {
 
-	return &Clients{}, nil
+	dmConn, err := s.getSecureAPIConnection(s.Configuration.ClusterAPIHostname, int(s.Configuration.ClusterAPIPort))
+	if err != nil {
+		return nil, derrors.AsError(err, "cannot create connection with the Cluster API manager")
+	}
+	deviceClient := grpc_cluster_api_go.NewDeviceManagerClient(dmConn)
+
+	loginConn, err := s.getSecureAPIConnection(s.Configuration.LoginHostname, int(s.Configuration.LoginPort))
+	if err != nil {
+		return nil, derrors.AsError(err, "cannot create connection with the Login API manager")
+	}
+	loginClient := grpc_login_api_go.NewLoginClient(loginConn)
+
+	return &Clients{DeviceManagerClient:deviceClient, LoginClient:loginClient}, nil
 }
 
-func (s *Service) getClusterAPIConnection(hostname string, port int) (*grpc.ClientConn, derrors.Error) {
+func (s *Service) getSecureAPIConnection(hostname string, port int) (*grpc.ClientConn, derrors.Error) {
 	// Build connection with cluster API
 	tlsConfig := &tls.Config{
 		ServerName:   hostname,
@@ -73,17 +90,31 @@ func (s *Service) Run() error {
 	}
 	s.Configuration.Print()
 
-	go s.LaunchGRPC()
+	authConfig, authErr := s.Configuration.LoadAuthConfig()
+	if authErr != nil {
+		log.Fatal().Str("err", authErr.DebugReport()).Msg("cannot load authx config")
+	}
+
+	log.Info().Bool("AllowsAll", authConfig.AllowsAll).Int("permissions", len(authConfig.Permissions)).Msg("Auth config")
+
+
+	go s.LaunchGRPC(authConfig)
 	return s.LaunchHTTP()
 
 }
 
-func (s * Service) LaunchGRPC() error {
+func (s * Service) LaunchGRPC(authConfig *interceptor.AuthorizationConfig) error {
 	// create clients
+	clients, cErr := s.GetClients()
+	if cErr != nil {
+		log.Fatal().Str("err", cErr.DebugReport()).Msg("cannot generate clients")
+		return cErr
+	}
+
 	clusterAPILoginHelper := login_helper.NewLogin(s.Configuration.LoginHostname, int(s.Configuration.LoginPort), s.Configuration.UseTLSForLogin,
 		s.Configuration.Email, s.Configuration.Password)
 
-	cErr := clusterAPILoginHelper.Login()
+	cErr = clusterAPILoginHelper.Login()
 	if cErr != nil {
 		log.Fatal().Str("err", cErr.DebugReport()).Msg("there was an error requesting cluster-api login")
 	}
@@ -93,20 +124,21 @@ func (s * Service) LaunchGRPC() error {
 		log.Fatal().Int("port", s.Configuration.Port).Str("err", err.Error()).Msg("failed to listen")
 	}
 
-	// Build connection with cluster-api
-	log.Debug().Str("hostname", s.Configuration.ClusterAPIHostname).Msg("connecting with cluster api")
-	clusterAPIConn, errCond := s.getClusterAPIConnection(s.Configuration.ClusterAPIHostname, int(s.Configuration.ClusterAPIPort))
-	if errCond != nil {
-		//log.Fatal().Errs("impossible to connect with cluster api", []error{cErr})
-		log.Fatal().Str("err", errCond.DebugReport()).Msg("impossible to connect with cluster api")
-	}
-	cClient := grpc_cluster_api_go.NewDeviceManagerClient(clusterAPIConn)
-
 	// Create handlers and managers
-	pingManager := ping.NewManager(s.Configuration.Threshold, clusterAPILoginHelper, cClient)
+	pingManager := ping.NewManager(s.Configuration.Threshold, clusterAPILoginHelper, clients.DeviceManagerClient)
 	pingHandler := ping.NewHandler(pingManager)
 
-	grpcServer := grpc.NewServer()
+	// Interceptor
+	accessManager, aErr := devinterceptor.NewClusterApiSecretAccessWithClients(clients.LoginClient, clients.DeviceManagerClient,
+		s.Configuration.Email, s.Configuration.Password, devinterceptor.DefaultCacheEntries)
+	if err != nil{
+		log.Fatal().Str("trace", aErr.DebugReport()).Msg("cannot create management secret access")
+	}
+
+	authxConfig := interceptor.NewConfig(authConfig, "", s.Configuration.AuthHeader)
+	grpcServer := grpc.NewServer(interceptor.WithDeviceAuthxInterceptor(accessManager, authxConfig))
+
+	//grpcServer := grpc.NewServer()
 	grpc_device_controller_go.RegisterConnectionServer(grpcServer, pingHandler)
 
 	// register
