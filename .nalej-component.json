@@ -1,0 +1,11 @@
+{
+    "language": "golang",
+    "application_list": [
+        "device-controller"
+    ],
+    "tools": [
+        "azure",
+        "k8s",
+        "docker"
+    ]
+}
