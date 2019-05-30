@@ -6,7 +6,7 @@ steps:
     inputs:
       buildType: "specific"
       project: "nalej"
-      pipeline: 5 # device-controller - Deployment
+      pipeline: 51 # device-controller - Deployment
       buildVersionToDownload: "latestFromBranch"
       branchName: "refs/heads/master"
       artifactName: testing-k8sYAMLfiles
