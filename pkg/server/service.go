@@ -17,7 +17,6 @@ import (
 	"github.com/nalej/grpc-cluster-api-go"
 	"github.com/nalej/grpc-device-controller-go"
 	"github.com/nalej/grpc-login-api-go"
-	"github.com/nalej/grpc-utils/pkg/tools"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -30,14 +29,12 @@ import (
 // Service structure with the configuration and the gRPC server.
 type Service struct {
 	Configuration Config
-	Server        *tools.GenericGRPCServer
 }
 
 // Clients structure with the gRPC clients for remote services.
 func NewService(conf Config) *Service {
 	return &Service {
 		conf,
-		tools.NewGenericGRPCServer(uint32(conf.Port)),
 	}
 }
 
