@@ -23,10 +23,6 @@
     version="v2.0.0"
 
 [[constraint]]
-    name="github.com/nalej/grpc-utils"
-    version="v1.1.0"
-
-[[constraint]]
     name="github.com/nalej/grpc-common-go"
     version="v0.0.17"
 

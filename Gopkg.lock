@@ -188,10 +188,7 @@
 [[projects]]
   digest = "1:a55e0792c0a632d14fc0f7a1c4b55ed2973189c2267d7197c2e13b1a44371466"
   name = "github.com/nalej/grpc-utils"
-  packages = [
-    "pkg/conversions",
-    "pkg/tools",
-  ]
+  packages = ["pkg/conversions"]
   pruneopts = ""
   revision = "3763d699ec598000c8095dc4d2e86a3ec0a169ff"
   version = "v1.3.1"
@@ -341,7 +338,6 @@
     "github.com/nalej/grpc-device-controller-go",
     "github.com/nalej/grpc-login-api-go",
     "github.com/nalej/grpc-utils/pkg/conversions",
-    "github.com/nalej/grpc-utils/pkg/tools",
     "github.com/rs/zerolog",
     "github.com/rs/zerolog/log",
     "github.com/spf13/cobra",
