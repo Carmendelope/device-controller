@@ -52,12 +52,8 @@ func (m * Manager) sendRegisterPingToClusterAPI(ping * grpc_device_controller_go
 			defer cancel2()
 			_, err = m.ClusterAPIClient.RegisterLatency(ctx2, ping)
 		} else {
-			log.Error().Err(err).Msgf("error recording latencies")
+			log.Error().Err(err).Str("OrganizationId", ping.OrganizationId).Str("deviceGroupId", ping.DeviceGroupId).Str("deviceId", ping.DeviceId).Msgf("error recording latencies")
 		}
-	}
-
-	if err != nil {
-		log.Error().Err(err).Msg("error recording latencies")
 	}
 
 	return nil
