@@ -40,4 +40,4 @@
 
 [[constraint]]
     name="github.com/nalej/authx"
-    branch="master"
+    version="=v0.3.0"

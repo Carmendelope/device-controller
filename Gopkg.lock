@@ -70,8 +70,7 @@
   version = "v1.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:37f5a5f32713ccfc3548ca4eb16f9bede1a2a8c02a983fa32bc24cf27b6e38f6"
+  digest = "1:18ed66bd8d4a26b523e182baa3fa3dfd8a5ad5eb712af4bc3eddb98048979212"
   name = "github.com/nalej/authx"
   packages = [
     "pkg/interceptor",
@@ -79,7 +78,8 @@
     "pkg/token",
   ]
   pruneopts = ""
-  revision = "e19b4325088cce3338a1dbbc7ed716655e1ce1b7"
+  revision = "b148308c906c0425a4604c9cf6bbb84b9a66356e"
+  version = "v0.3.0"
 
 [[projects]]
   digest = "1:0cc441f3dfe124dd74f44dd7e466dfc17cc7edff468094fbc3847a96b5ebf6f7"
@@ -98,12 +98,12 @@
   version = "v0.0.56"
 
 [[projects]]
-  digest = "1:04ab94c90e7bce3f0ccf049c17c4c784da6819bca629e6ea98dcfe1f9b3a7f7a"
+  digest = "1:cfdc08a44d4a20ba76521e370c464e9a3056154cbe939c8115f3f689b7eedc7a"
   name = "github.com/nalej/grpc-authx-go"
   packages = ["."]
   pruneopts = ""
-  revision = "3982becdfade5f6fe16da9a585747850b61eefa3"
-  version = "v0.0.42"
+  revision = "27c410c0c02716415a772e92832e9059a1c3e95a"
+  version = "v0.0.50"
 
 [[projects]]
   digest = "1:46de8e777e399093354063d3df58f7f7c7c3bb5ca64bd4b80fea936d1d70ee02"
