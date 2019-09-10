@@ -109,7 +109,7 @@ func (s * Service) LaunchGRPC(authConfig *interceptor.AuthorizationConfig) error
 	}
 
 	clusterAPILoginHelper := login_helper.NewLogin(s.Configuration.LoginHostname, int(s.Configuration.LoginPort), s.Configuration.UseTLSForLogin,
-		s.Configuration.Email, s.Configuration.Password)
+		s.Configuration.Email, s.Configuration.Password, s.Configuration.CACertPath, s.Configuration.ClientCertPath, s.Configuration.SkipServerCertValidation)
 
 	cErr = clusterAPILoginHelper.Login()
 	if cErr != nil {
