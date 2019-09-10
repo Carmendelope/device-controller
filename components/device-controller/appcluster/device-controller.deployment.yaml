@@ -40,6 +40,9 @@ spec:
         - "--password=$(PASSWORD)"
         - "--authConfigPath=/nalej/config/authx-device-controller-authx-config.json"
         - "--authHeader=authorization"
+        - "--caCertPath=/nalej/ca-certificate/ca.crt"
+        - "--clientCertPath=/nalej/tls-client-certificate/"
+        - "--skipServerCertValidation=false"
         securityContext:
           runAsUser: 2000
         env:
@@ -73,12 +76,24 @@ spec:
           containerPort: 5200
         volumeMounts:
         - name: config
-          mountPath: "/nalej/config"
+          mountPath: /nalej/config
           readOnly: true
+        - name: tls-client-certificate-volume
+          readOnly: true
+          mountPath: /nalej/tls-client-certificate
+        - name: ca-certificate-volume
+          readOnly: true
+          mountPath: /nalej/ca-certificate
       volumes:
       - name: config
         configMap:
           defaultMode: 0644
           name: device-controller-authx-config
+      - name: tls-client-certificate-volume
+        secret:
+          secretName: tls-client-certificate
+      - name: ca-certificate-volume
+         secret:
+           secretName: ca-certificate
       imagePullSecrets:
       - name: nalej-registry

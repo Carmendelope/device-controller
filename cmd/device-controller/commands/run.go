@@ -33,5 +33,8 @@ func init() {
 	runCmd.Flags().StringVar(&config.Password, "password", "", "password")
 	runCmd.PersistentFlags().StringVar(&config.AuthHeader, "authHeader", "", "Authorization Header")
 	runCmd.PersistentFlags().StringVar(&config.AuthConfigPath, "authConfigPath", "", "Authorization config path")
+	runCmd.Flags().StringVar(&config.CACertPath, "caCertPath", "", "Path for the CA certificate")
+	runCmd.Flags().StringVar(&config.ClientCertPath, "clientCertPath", "", "Path for the client certificate")
+	runCmd.Flags().BoolVar(&config.SkipServerCertValidation, "skipServerCertValidation", true, "Skip CA authentication validation")
 	rootCmd.AddCommand(runCmd)
 }
