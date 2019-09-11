@@ -36,6 +36,12 @@ type Config struct {
 	AuthHeader string
 	// AuthConfigPath contains the path of the file with the authentication configuration.
 	AuthConfigPath string
+	// Path for the certificate of the CA
+	CACertPath string
+	// Client Cert Path
+	ClientCertPath string
+	// Skip Server validation
+	SkipServerCertValidation bool
 }
 
 // LoadAuthConfig loads the security configuration.
