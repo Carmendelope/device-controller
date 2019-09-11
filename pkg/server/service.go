@@ -7,6 +7,7 @@ package server
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/nalej/authx/pkg/interceptor"
@@ -21,6 +22,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"strings"
@@ -45,13 +47,13 @@ type Clients struct {
 
 func (s *Service) GetClients() (*Clients, derrors.Error) {
 
-	dmConn, err := s.getSecureAPIConnection(s.Configuration.ClusterAPIHostname, int(s.Configuration.ClusterAPIPort))
+	dmConn, err := s.getSecureAPIConnection(s.Configuration.ClusterAPIHostname, int(s.Configuration.ClusterAPIPort), s.Configuration.CACertPath, s.Configuration.ClientCertPath, s.Configuration.SkipServerCertValidation)
 	if err != nil {
 		return nil, derrors.AsError(err, "cannot create connection with the Cluster API manager")
 	}
 	deviceClient := grpc_cluster_api_go.NewDeviceManagerClient(dmConn)
 
-	loginConn, err := s.getSecureAPIConnection(s.Configuration.LoginHostname, int(s.Configuration.LoginPort))
+	loginConn, err := s.getSecureAPIConnection(s.Configuration.LoginHostname, int(s.Configuration.LoginPort), s.Configuration.CACertPath, s.Configuration.ClientCertPath, s.Configuration.SkipServerCertValidation)
 	if err != nil {
 		return nil, derrors.AsError(err, "cannot create connection with the Login API manager")
 	}
@@ -60,14 +62,46 @@ func (s *Service) GetClients() (*Clients, derrors.Error) {
 	return &Clients{DeviceManagerClient:deviceClient, LoginClient:loginClient}, nil
 }
 
-func (s *Service) getSecureAPIConnection(hostname string, port int) (*grpc.ClientConn, derrors.Error) {
+func (s *Service) getSecureAPIConnection(hostname string, port int, caCertPath string, clientCertPath string, skipCAValidation bool) (*grpc.ClientConn, derrors.Error) {
 	// Build connection with cluster API
+	rootCAs := x509.NewCertPool()
 	tlsConfig := &tls.Config{
 		ServerName:   hostname,
-		InsecureSkipVerify: true,
 	}
+
+	if caCertPath != "" {
+		log.Debug().Str("caCertPath", caCertPath).Msg("loading CA cert")
+		caCert, err := ioutil.ReadFile(caCertPath)
+		if err != nil {
+			return nil, derrors.NewInternalError("Error loading CA certificate")
+		}
+		added := rootCAs.AppendCertsFromPEM(caCert)
+		if !added {
+			return nil, derrors.NewInternalError("cannot add CA certificate to the pool")
+		}
+		tlsConfig.RootCAs = rootCAs
+	}
+
 	targetAddress := fmt.Sprintf("%s:%d", hostname, port)
 	log.Debug().Str("address", targetAddress).Msg("creating cluster API connection")
+
+	if clientCertPath != "" {
+		log.Debug().Str("clientCertPath", clientCertPath).Msg("loading client certificate")
+		clientCert, err := tls.LoadX509KeyPair(fmt.Sprintf("%s/tls.crt", clientCertPath),fmt.Sprintf("%s/tls.key", clientCertPath))
+		if err != nil {
+			log.Error().Str("error", err.Error()).Msg("Error loading client certificate")
+			return nil, derrors.NewInternalError("Error loading client certificate")
+		}
+
+		tlsConfig.Certificates = []tls.Certificate{clientCert}
+		tlsConfig.BuildNameToCertificate()
+	}
+	log.Debug().Str("address", targetAddress).Str("caCertPath", caCertPath).Bool("skipCAValidation", skipCAValidation).Msg("creating secure connection")
+
+	if skipCAValidation {
+		log.Debug().Msg("skipping server cert validation")
+		tlsConfig.InsecureSkipVerify = true
+	}
 
 	creds := credentials.NewTLS(tlsConfig)
 
@@ -109,7 +143,7 @@ func (s * Service) LaunchGRPC(authConfig *interceptor.AuthorizationConfig) error
 	}
 
 	clusterAPILoginHelper := login_helper.NewLogin(s.Configuration.LoginHostname, int(s.Configuration.LoginPort), s.Configuration.UseTLSForLogin,
-		s.Configuration.Email, s.Configuration.Password, s.Configuration.CACertPath, s.Configuration.ClientCertPath, s.Configuration.SkipServerCertValidation)
+		s.Configuration.Email, s.Configuration.Password, "", "", true)
 
 	cErr = clusterAPILoginHelper.Login()
 	if cErr != nil {

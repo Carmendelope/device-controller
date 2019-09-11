@@ -34,7 +34,7 @@ type LoginHelper struct {
 // NewLogin creates a new LoginHelper structure.
 func NewLogin(hostname string, port int, useTLS bool, email string, password string, caCertPath string, clientCertPath string, skipCAValidation bool) *LoginHelper {
 	return &LoginHelper{
-		Connection: *NewConnection(hostname, port, useTLS, caCertPath, clientCertPath, skipCAValidation),
+		Connection: *NewConnection(hostname, port, useTLS, "", "", true),
 		email: email,
 		password: password,
 	}
