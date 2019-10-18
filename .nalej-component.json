@@ -1,6 +1,10 @@
 {
   "language": "golang",
+  "version": "v0.4.0",
   "application_list": [
+    "device-controller"
+  ],
+  "image_list": [
     "device-controller"
   ],
   "tools": [
