@@ -20,11 +20,11 @@
 
 [[constraint]]
     name="github.com/nalej/derrors"
-    version="v2.0.0"
+    version="v2.1.0"
 
 [[constraint]]
     name="github.com/nalej/grpc-common-go"
-    version="v0.0.17"
+    version="v0.0.34"
 
 [[constraint]]
     name="github.com/nalej/grpc-device-controller-go"
@@ -36,8 +36,8 @@
 
 [[constraint]]
     name="github.com/nalej/grpc-cluster-api-go"
-    version="v0.0.17"
+    version="v0.0.24"
 
 [[constraint]]
     name="github.com/nalej/authx"
-    version="=v0.3.0"
+    version="=v0.4.0"
