@@ -1,5 +1,17 @@
 /*
- * Copyright (C) 2019 Nalej - All Rights Reserved
+ * Copyright 2019 Nalej
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package server
@@ -35,14 +47,14 @@ type Service struct {
 
 // Clients structure with the gRPC clients for remote services.
 func NewService(conf Config) *Service {
-	return &Service {
+	return &Service{
 		conf,
 	}
 }
 
 type Clients struct {
 	DeviceManagerClient grpc_cluster_api_go.DeviceManagerClient
-	LoginClient  grpc_login_api_go.LoginClient
+	LoginClient         grpc_login_api_go.LoginClient
 }
 
 func (s *Service) GetClients() (*Clients, derrors.Error) {
@@ -59,14 +71,14 @@ func (s *Service) GetClients() (*Clients, derrors.Error) {
 	}
 	loginClient := grpc_login_api_go.NewLoginClient(loginConn)
 
-	return &Clients{DeviceManagerClient:deviceClient, LoginClient:loginClient}, nil
+	return &Clients{DeviceManagerClient: deviceClient, LoginClient: loginClient}, nil
 }
 
 func (s *Service) getSecureAPIConnection(hostname string, port int, caCertPath string, clientCertPath string, skipCAValidation bool) (*grpc.ClientConn, derrors.Error) {
 	// Build connection with cluster API
 	rootCAs := x509.NewCertPool()
 	tlsConfig := &tls.Config{
-		ServerName:   hostname,
+		ServerName: hostname,
 	}
 
 	if caCertPath != "" {
@@ -87,7 +99,7 @@ func (s *Service) getSecureAPIConnection(hostname string, port int, caCertPath s
 
 	if clientCertPath != "" {
 		log.Debug().Str("clientCertPath", clientCertPath).Msg("loading client certificate")
-		clientCert, err := tls.LoadX509KeyPair(fmt.Sprintf("%s/tls.crt", clientCertPath),fmt.Sprintf("%s/tls.key", clientCertPath))
+		clientCert, err := tls.LoadX509KeyPair(fmt.Sprintf("%s/tls.crt", clientCertPath), fmt.Sprintf("%s/tls.key", clientCertPath))
 		if err != nil {
 			log.Error().Str("error", err.Error()).Msg("Error loading client certificate")
 			return nil, derrors.NewInternalError("Error loading client certificate")
@@ -128,13 +140,12 @@ func (s *Service) Run() error {
 
 	log.Info().Bool("AllowsAll", authConfig.AllowsAll).Int("permissions", len(authConfig.Permissions)).Msg("Auth config")
 
-
 	go s.LaunchGRPC(authConfig)
 	return s.LaunchHTTP()
 
 }
 
-func (s * Service) LaunchGRPC(authConfig *interceptor.AuthorizationConfig) error {
+func (s *Service) LaunchGRPC(authConfig *interceptor.AuthorizationConfig) error {
 	// create clients
 	clients, cErr := s.GetClients()
 	if cErr != nil {
@@ -162,7 +173,7 @@ func (s * Service) LaunchGRPC(authConfig *interceptor.AuthorizationConfig) error
 	// Interceptor
 	accessManager, aErr := devinterceptor.NewClusterApiSecretAccessWithClients(clients.LoginClient, clients.DeviceManagerClient,
 		s.Configuration.Email, s.Configuration.Password, devinterceptor.DefaultCacheEntries)
-	if err != nil{
+	if err != nil {
 		log.Fatal().Str("trace", aErr.DebugReport()).Msg("cannot create management secret access")
 	}
 
@@ -202,7 +213,7 @@ func preflightHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", strings.Join(methods, ","))
 }
 
-func (s * Service) LaunchHTTP() error {
+func (s *Service) LaunchHTTP() error {
 
 	addr := fmt.Sprintf(":%d", s.Configuration.HTTPPort)
 	clientAddr := fmt.Sprintf(":%d", s.Configuration.Port)
