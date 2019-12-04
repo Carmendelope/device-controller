@@ -8,6 +8,9 @@
   "image_list": [
     "device-controller"
   ],
+  "component_list": [
+    "device-controller"
+  ],
   "tools": [
     "k8s",
     "docker"
