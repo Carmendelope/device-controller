@@ -1,6 +1,6 @@
 # device-controller
 
-`device-controller` is a component within the Nalej platform that resides in the `App Cluster` and is in charge of having updated information about the devices running in a cluster. 
+`device-controller` is a component within the Nalej platform that resides in the application cluster and is in charge of having updated information about the devices running in a cluster. 
 
 ## Getting Started
 
@@ -11,8 +11,8 @@ The `device-controller` component has three main functionalities:
 
 ### Prerequisites
 
-* cluster-api
-* login-api
+* [cluster-api](https://github.com/nalej/cluster-api)
+* [login-api](https://github.com/nalej/login-api)
 
 ### Build and compile
 
@@ -22,8 +22,7 @@ In order to build and compile this repository use the provided Makefile:
 make all
 ```
 
-This operation generates the binaries for this repo, download dependencies,
-run existing tests and generate ready-to-deploy Kubernetes files.
+This operation generates the binaries for this repo, downloads the required dependencies, runs existing tests and generates ready-to-deploy Kubernetes files.
 
 ### Run tests
 
@@ -56,7 +55,7 @@ Please read [contributing.md](contributing.md) for details on our code of conduc
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/nalej/device-controller/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the available versions, see the [tags on this repository](https://github.com/nalej/device-controller/tags). 
 
 ## Authors
 
